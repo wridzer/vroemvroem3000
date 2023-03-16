@@ -62,12 +62,18 @@ void AVehiclePawn::LookUp(float Val)
 	if (Val != 0.f) {
 		AddControllerPitchInput(-Val);
 	}
+	else {
+		springArm->SetRelativeRotation(FRotator(springArm->GetRelativeRotation().Roll, 0, springArm->GetRelativeRotation().Yaw)); // FIX
+	}
 }
 
 void AVehiclePawn::Turn(float Val)
 {
 	if (Val != 0.f) {
 		AddControllerYawInput(Val);
+	}
+	else {
+		springArm->SetRelativeRotation(FRotator(springArm->GetRelativeRotation().Roll, springArm->GetRelativeRotation().Pitch, 0)); // FIX
 	}
 }
 
