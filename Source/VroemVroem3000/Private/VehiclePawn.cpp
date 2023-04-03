@@ -60,10 +60,7 @@ void AVehiclePawn::Shoot()
 
 void AVehiclePawn::ApplyThrottle(float Val)
 {
-	if(Val > 0)
-		GetVehicleMovementComponent()->SetThrottleInput(Val);
-	else
-		GetVehicleMovementComponent()->SetBrakeInput(-Val);
+	GetVehicleMovementComponent()->SetThrottleInput(Val);
 }
 
 void AVehiclePawn::ApplySteering(float Val)
