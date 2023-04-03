@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "ChaosVehicleMovementComponent.h"
+#include "GrapplingHook.h"
 
 
 AVehiclePawn::AVehiclePawn()
@@ -45,11 +46,24 @@ void AVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction("HandBrake", IE_Pressed, this, &AVehiclePawn::OnHandbrakePressed);
 	PlayerInputComponent->BindAction("HandBrake", IE_Released, this, &AVehiclePawn::OnHandbrakeReleased);
+
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &AVehiclePawn::Shoot);
+}
+
+void AVehiclePawn::Shoot()
+{
+	FVector spawnPos = GetActorLocation();
+	FActorSpawnParameters SpawnInfo;
+	FRotator myRot(0, 0, 0);
+	GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
 }
 
 void AVehiclePawn::ApplyThrottle(float Val)
 {
-	GetVehicleMovementComponent()->SetThrottleInput(Val);
+	if(Val > 0)
+		GetVehicleMovementComponent()->SetThrottleInput(Val);
+	else
+		GetVehicleMovementComponent()->SetBrakeInput(-Val);
 }
 
 void AVehiclePawn::ApplySteering(float Val)

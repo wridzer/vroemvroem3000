@@ -3,6 +3,7 @@
 
 #include "GrapplingHook.h"
 #include "CableComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 AGrapplingHook::AGrapplingHook()
@@ -11,10 +12,21 @@ AGrapplingHook::AGrapplingHook()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Create projectile
-
+	hook = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hook"));
+	hook->SetupAttachment(RootComponent);
+	
+	// Add projectile movement component
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
+	ProjectileMovementComponent->InitialSpeed = 3000.0f;
+	ProjectileMovementComponent->MaxSpeed = 3000.0f;
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	ProjectileMovementComponent->bShouldBounce = true;
+	ProjectileMovementComponent->Bounciness = 0.3f;
 
 	// Create Cable
 	cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
+	cable->SetupAttachment(hook);
 
 }
 

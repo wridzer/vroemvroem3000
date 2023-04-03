@@ -15,11 +15,17 @@ public:
 	// Sets default values for this actor's properties
 	AGrapplingHook();
 
+	UPROPERTY(EditDefaultsOnly)
+		class UStaticMeshComponent* hook;
+	UPROPERTY(VisibleAnywhere)
+		class UProjectileMovementComponent* ProjectileMovementComponent;
+	UPROPERTY(EditAnywhere)
+		class UCableComponent* cable;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	UPROPERTY(EditDefaultsOnly)
-		class UCableComponent* cable;
+
 
 public:	
 	// Called every frame

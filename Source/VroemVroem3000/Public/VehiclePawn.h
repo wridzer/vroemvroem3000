@@ -21,6 +21,9 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	// Shoot grappiling hook
+	void Shoot();
+
 	// Throttle/steering
 	void ApplyThrottle(float Val);
 	void ApplySteering(float Val);
@@ -28,7 +31,6 @@ public:
 	// Look around
 	void LookUp(float Val);
 	void Turn(float Val);
-
 
 	// Handbrake
 	void OnHandbrakePressed();
@@ -43,6 +45,8 @@ public:
 		float AirRollForce;
 	UPROPERTY(EditAnywhere)
 		float FlippedRollForce;
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<AActor> grapplingHook;
 
 protected:
 
