@@ -8,6 +8,7 @@
 #include "Components/InputComponent.h"
 #include "ChaosVehicleMovementComponent.h"
 #include "GrapplingHook.h"
+#include "GrappleComponent.h"
 
 
 AVehiclePawn::AVehiclePawn()
@@ -26,6 +27,9 @@ AVehiclePawn::AVehiclePawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("ChaseCamera"));
 	Camera->SetupAttachment(springArm, USpringArmComponent::SocketName);
 	Camera->FieldOfView = 90.0f;
+
+	// Add Grapple Component
+	grapplingComponent = CreateDefaultSubobject<UGrappleComponent>(TEXT("GrappleComponent"));
 }
 
 void AVehiclePawn::Tick(float DeltaTime)

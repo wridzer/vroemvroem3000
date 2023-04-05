@@ -4,6 +4,9 @@
 #include "GrappleComponent.h"
 #include "GrappleTarget.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Camera/CameraComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Math/Vector.h"
 
 // Sets default values for this component's properties
 UGrappleComponent::UGrappleComponent()
@@ -20,9 +23,9 @@ UGrappleComponent::UGrappleComponent()
 void UGrappleComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	grappleState = GrappleStates::RETRACTED;
 	owner = GetOwner();
-	
+	camera = owner->FindComponentByClass<UCameraComponent>();
 }
 
 void UGrappleComponent::Retracted()
@@ -45,10 +48,13 @@ void UGrappleComponent::Retracted()
 		targets);
 
 	// Find best target
-	FHitResult bestTarget;
+	AActor* bestTarget = NULL;
+	float bestAngle = INFINITY;
 
-	for (int i = 0; i < targets.Num(); i++) // AActor* const target in targets)
+	for (int i = 0; i < targets.Num(); i++)
 	{
+		// Cast line to targets
+		FHitResult result;
 		UKismetSystemLibrary::LineTraceSingle(
 			GetWorld(),
 			owner->GetActorLocation(),
@@ -57,11 +63,22 @@ void UGrappleComponent::Retracted()
 			false,
 			TArray<AActor*>(),
 			EDrawDebugTrace::None,
-			bestTarget,
+			result,
 			true
 			);
-
+		// Check if better target
+		if (result.GetActor() == targets[i]) {
+			FVector normalizedDist = targets[i]->GetActorLocation() - owner->GetActorLocation().Normalize();
+			float currentAngle = UKismetMathLibrary::DegAcos(FVector::DotProduct(normalizedDist, camera->GetForwardVector()));
+			if (currentAngle < bestAngle || !IsValid(bestTarget)) {
+				bestAngle = currentAngle;
+				bestTarget = targets[i];
+			}
+		}
 	}
+
+	// Set visibility
+	AGrappleTarget* selectedTarget = Cast<AGrappleTarget>(bestTarget);
 
 
 }

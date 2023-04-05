@@ -28,6 +28,8 @@ protected:
 	void OnTarget();
 
 	AActor* owner;
+	class UCameraComponent* camera;
+	class AGrappleTarget* currentTarget;
 
 	UPROPERTY(EditDefaultsOnly)
 		float maxGrappleDist = 500;
