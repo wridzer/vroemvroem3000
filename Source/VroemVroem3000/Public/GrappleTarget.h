@@ -15,6 +15,13 @@ public:
 	// Sets default values for this actor's properties
 	AGrappleTarget();
 
+	UPROPERTY(EditAnywhere)
+		class UBillboardComponent* billboard;
+	UPROPERTY(EditAnywhere)
+		class UWidgetComponent* widget;
+	UPROPERTY(EditAnywhere)
+		class USphereComponent* sphereCollider;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

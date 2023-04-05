@@ -20,9 +20,29 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	GrappleStates grappleState;
+
+	void Retracted();
+	void Firing();
+	void NearingTarget();
+	void OnTarget();
+
+	AActor* owner;
+
+	UPROPERTY(EditDefaultsOnly)
+		float maxGrappleDist = 500;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 		
+};
+
+UENUM(BlueprintType)
+enum class GrappleStates : uint8 {
+	RETRACTED = 0,
+	FIRING = 1,
+	NEARING_TARGET = 2,
+	ON_TARGET = 3
 };
