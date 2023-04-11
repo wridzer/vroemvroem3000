@@ -34,6 +34,11 @@ AGrappleTarget::AGrappleTarget()
 
 }
 
+void AGrappleTarget::SetActive(bool activate)
+{
+	widget->SetVisibility(activate);
+}
+
 // Called when the game starts or when spawned
 void AGrappleTarget::BeginPlay()
 {

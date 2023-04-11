@@ -22,6 +22,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		class USphereComponent* sphereCollider;
 
+	void SetActive(bool _activate);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

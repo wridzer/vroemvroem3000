@@ -56,10 +56,10 @@ void AVehiclePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AVehiclePawn::Shoot()
 {
-	FVector spawnPos = GetActorLocation();
-	FActorSpawnParameters SpawnInfo;
-	FRotator myRot(0, 0, 0);
-	GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
+	//FVector spawnPos = GetActorLocation();
+	//FActorSpawnParameters SpawnInfo;
+	//FRotator myRot(0, 0, 0);
+	//GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
 }
 
 void AVehiclePawn::ApplyThrottle(float Val)

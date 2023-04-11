@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Math/Vector.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values for this component's properties
 UGrappleComponent::UGrappleComponent()
@@ -67,9 +68,11 @@ void UGrappleComponent::Retracted()
 			true
 			);
 		// Check if better target
-		if (result.GetActor() == targets[i]) {
-			FVector normalizedDist = targets[i]->GetActorLocation() - owner->GetActorLocation().Normalize();
+		/*if (targets[i] == result.GetActor()) */if (result.ImpactPoint == targets[i]->GetActorLocation()) {
+			FVector normalizedDist = targets[i]->GetActorLocation() - owner->GetActorLocation();
+			normalizedDist.Normalize();
 			float currentAngle = UKismetMathLibrary::DegAcos(FVector::DotProduct(normalizedDist, camera->GetForwardVector()));
+			// UE_LOG(LogTemp, Warning, TEXT("Some variable values: x: %f"), currentAngle);
 			if (currentAngle < bestAngle || !IsValid(bestTarget)) {
 				bestAngle = currentAngle;
 				bestTarget = targets[i];
@@ -79,6 +82,12 @@ void UGrappleComponent::Retracted()
 
 	// Set visibility
 	AGrappleTarget* selectedTarget = Cast<AGrappleTarget>(bestTarget);
+	if (selectedTarget != currentTarget || !IsValid(currentTarget)) {
+		if (IsValid(currentTarget)) { currentTarget->SetActive(false); }
+		currentTarget = selectedTarget;
+		if (IsValid(currentTarget))
+			currentTarget->SetActive(true);
+	}
 
 
 }
