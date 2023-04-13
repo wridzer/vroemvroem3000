@@ -7,7 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Math/Vector.h"
-#include "Components/WidgetComponent.h"
+#include <GrapplingHook.h>
 
 // Sets default values for this component's properties
 UGrappleComponent::UGrappleComponent()
@@ -16,7 +16,19 @@ UGrappleComponent::UGrappleComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
+	GrapplingHookAttachmentPoint = CreateDefaultSubobject<USceneComponent>(TEXT("GrapplingHook Attachment Point"));
+	GrapplingHookAttachmentPoint->AddRelativeLocation(FVector(230, 0, 0));
 	// ...
+}
+
+void UGrappleComponent::AttemptGrapple()
+{
+	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
+		FVector spawnPos = GrapplingHookAttachmentPoint->GetComponentLocation();
+		FActorSpawnParameters SpawnInfo;
+		FRotator myRot = GrapplingHookAttachmentPoint->GetComponentRotation();
+		GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
+	}
 }
 
 
@@ -41,7 +53,7 @@ void UGrappleComponent::Retracted()
 	// Look for targets
 	UKismetSystemLibrary::SphereOverlapActors(
 		GetWorld(),
-		owner->GetActorLocation(),
+		GrapplingHookAttachmentPoint->GetComponentLocation(),
 		maxGrappleDist,
 		ObjectTypes,
 		AGrappleTarget::StaticClass(),
@@ -52,27 +64,30 @@ void UGrappleComponent::Retracted()
 	AActor* bestTarget = NULL;
 	float bestAngle = INFINITY;
 
+	// Actors to ignore
+	TArray<AActor*> ignoreActors;
+	ignoreActors.Init(owner, 1);
+
 	for (int i = 0; i < targets.Num(); i++)
 	{
 		// Cast line to targets
 		FHitResult result;
 		UKismetSystemLibrary::LineTraceSingle(
 			GetWorld(),
-			owner->GetActorLocation(),
+			GrapplingHookAttachmentPoint->GetComponentLocation(),
 			targets[i]->GetActorLocation(),
 			ETraceTypeQuery(),
 			false,
-			TArray<AActor*>(),
+			ignoreActors,
 			EDrawDebugTrace::None,
 			result,
 			true
 			);
 		// Check if better target
-		/*if (targets[i] == result.GetActor()) */if (result.ImpactPoint == targets[i]->GetActorLocation()) {
-			FVector normalizedDist = targets[i]->GetActorLocation() - owner->GetActorLocation();
+		if (targets[i] == result.GetActor()) {
+			FVector normalizedDist = targets[i]->GetActorLocation() - GrapplingHookAttachmentPoint->GetComponentLocation();
 			normalizedDist.Normalize();
 			float currentAngle = UKismetMathLibrary::DegAcos(FVector::DotProduct(normalizedDist, camera->GetForwardVector()));
-			// UE_LOG(LogTemp, Warning, TEXT("Some variable values: x: %f"), currentAngle);
 			if (currentAngle < bestAngle || !IsValid(bestTarget)) {
 				bestAngle = currentAngle;
 				bestTarget = targets[i];

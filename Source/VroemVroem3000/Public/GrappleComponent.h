@@ -16,6 +16,11 @@ public:
 	// Sets default values for this component's properties
 	UGrappleComponent();
 
+	void AttemptGrapple();
+
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<AActor> grapplingHook;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -33,6 +38,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 		float maxGrappleDist = 500;
+	UPROPERTY(EditAnywhere)
+		class USceneComponent* GrapplingHookAttachmentPoint;
 
 public:	
 	// Called every frame

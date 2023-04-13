@@ -13,9 +13,7 @@
 
 AVehiclePawn::AVehiclePawn()
 {
-	//UChaosVehicleMovementComponent* Vehicle = CastChecked<UChaosVehicleMovementComponent>(GetVehicleMovement());
-
-	//Vehicle->RPM;
+	//UE_LOG(LogTemp, Warning, TEXT("loop actor: %f result actor: %f"), targets[i], result.GetActor());
 
 	// Create Springarm
 	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
@@ -60,6 +58,8 @@ void AVehiclePawn::Shoot()
 	//FActorSpawnParameters SpawnInfo;
 	//FRotator myRot(0, 0, 0);
 	//GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
+
+	grapplingComponent->AttemptGrapple();
 }
 
 void AVehiclePawn::ApplyThrottle(float Val)
@@ -77,9 +77,9 @@ void AVehiclePawn::LookUp(float Val)
 	if (Val != 0.f) {
 		AddControllerPitchInput(-Val);
 	}
-	else {
-		springArm->SetRelativeRotation(FRotator(springArm->GetRelativeRotation().Roll, 0, springArm->GetRelativeRotation().Yaw)); // FIX
-	}
+	//else {
+	//	springArm->SetRelativeRotation(FRotator(springArm->GetRelativeRotation().Roll, 0, springArm->GetRelativeRotation().Yaw)); // FIX
+	//}
 }
 
 void AVehiclePawn::Turn(float Val)
@@ -87,9 +87,9 @@ void AVehiclePawn::Turn(float Val)
 	if (Val != 0.f) {
 		AddControllerYawInput(Val);
 	}
-	else {
-		springArm->SetRelativeRotation(FRotator(springArm->GetRelativeRotation().Roll, springArm->GetRelativeRotation().Pitch, 0)); // FIX
-	}
+	//else {
+	//	springArm->SetRelativeRotation(FRotator(springArm->GetRelativeRotation().Roll, springArm->GetRelativeRotation().Pitch, 0)); // FIX
+	//}
 }
 
 void AVehiclePawn::OnHandbrakePressed()

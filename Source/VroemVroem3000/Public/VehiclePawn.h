@@ -46,8 +46,6 @@ public:
 	UPROPERTY(EditAnywhere)
 		float FlippedRollForce;
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<AActor> grapplingHook;
-	UPROPERTY(EditDefaultsOnly)
 		class UGrappleComponent* grapplingComponent;
 
 protected:
