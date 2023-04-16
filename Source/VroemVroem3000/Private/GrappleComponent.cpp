@@ -16,21 +16,8 @@ UGrappleComponent::UGrappleComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	GrapplingHookAttachmentPoint = CreateDefaultSubobject<USceneComponent>(TEXT("GrapplingHook Attachment Point"));
-	GrapplingHookAttachmentPoint->AddRelativeLocation(FVector(230, 0, 0));
 	// ...
 }
-
-void UGrappleComponent::AttemptGrapple()
-{
-	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
-		FVector spawnPos = GrapplingHookAttachmentPoint->GetComponentLocation();
-		FActorSpawnParameters SpawnInfo;
-		FRotator myRot = GrapplingHookAttachmentPoint->GetComponentRotation();
-		GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
-	}
-}
-
 
 // Called when the game starts
 void UGrappleComponent::BeginPlay()
@@ -39,6 +26,17 @@ void UGrappleComponent::BeginPlay()
 	grappleState = GrappleStates::RETRACTED;
 	owner = GetOwner();
 	camera = owner->FindComponentByClass<UCameraComponent>();
+}
+
+void UGrappleComponent::AttemptGrapple()
+{
+	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
+		FVector spawnPos = owner->GetActorLocation();
+		FActorSpawnParameters SpawnInfo;
+		FRotator myRot = camera->GetComponentRotation();
+		GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
+		grappleState = GrappleStates::FIRING;
+	}
 }
 
 void UGrappleComponent::Retracted()
@@ -53,7 +51,7 @@ void UGrappleComponent::Retracted()
 	// Look for targets
 	UKismetSystemLibrary::SphereOverlapActors(
 		GetWorld(),
-		GrapplingHookAttachmentPoint->GetComponentLocation(),
+		owner->GetActorLocation(),
 		maxGrappleDist,
 		ObjectTypes,
 		AGrappleTarget::StaticClass(),
@@ -74,18 +72,18 @@ void UGrappleComponent::Retracted()
 		FHitResult result;
 		UKismetSystemLibrary::LineTraceSingle(
 			GetWorld(),
-			GrapplingHookAttachmentPoint->GetComponentLocation(),
+			owner->GetActorLocation(),
 			targets[i]->GetActorLocation(),
 			ETraceTypeQuery(),
 			false,
 			ignoreActors,
-			EDrawDebugTrace::None,
+			EDrawDebugTrace::ForDuration,
 			result,
 			true
 			);
 		// Check if better target
 		if (targets[i] == result.GetActor()) {
-			FVector normalizedDist = targets[i]->GetActorLocation() - GrapplingHookAttachmentPoint->GetComponentLocation();
+			FVector normalizedDist = targets[i]->GetActorLocation() - owner->GetActorLocation();
 			normalizedDist.Normalize();
 			float currentAngle = UKismetMathLibrary::DegAcos(FVector::DotProduct(normalizedDist, camera->GetForwardVector()));
 			if (currentAngle < bestAngle || !IsValid(bestTarget)) {

@@ -38,8 +38,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 		float maxGrappleDist = 500;
-	UPROPERTY(EditAnywhere)
-		class USceneComponent* GrapplingHookAttachmentPoint;
 
 public:	
 	// Called every frame
