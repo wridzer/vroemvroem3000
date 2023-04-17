@@ -35,9 +35,10 @@ protected:
 	AActor* owner;
 	class UCameraComponent* camera;
 	class AGrappleTarget* currentTarget;
+	FVector grappleAttachmentPoint;
 
 	UPROPERTY(EditDefaultsOnly)
-		float maxGrappleDist = 500;
+		float maxGrappleDist = 5000;
 
 public:	
 	// Called every frame

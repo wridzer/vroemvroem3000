@@ -26,16 +26,25 @@ void UGrappleComponent::BeginPlay()
 	grappleState = GrappleStates::RETRACTED;
 	owner = GetOwner();
 	camera = owner->FindComponentByClass<UCameraComponent>();
+
+	// I wanted to create a empty default gameobject, but didnt know how in UE5 yet
+	USceneComponent* GrappleAttachment = Cast<USceneComponent>(GetDefaultSubobjectByName(TEXT("GrappleAttachment")));
+	if (IsValid(GrappleAttachment)) {
+		grappleAttachmentPoint = GrappleAttachment->GetComponentLocation();
+	}
+	else {
+		grappleAttachmentPoint = owner->GetActorLocation() + FVector(250, 0, 50);
+	}
 }
 
 void UGrappleComponent::AttemptGrapple()
 {
 	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
-		FVector spawnPos = owner->GetActorLocation();
+		FVector spawnPos = grappleAttachmentPoint;
 		FActorSpawnParameters SpawnInfo;
 		FRotator myRot = camera->GetComponentRotation();
 		GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
-		grappleState = GrappleStates::FIRING;
+		//grappleState = GrappleStates::FIRING;
 	}
 }
 
@@ -72,12 +81,12 @@ void UGrappleComponent::Retracted()
 		FHitResult result;
 		UKismetSystemLibrary::LineTraceSingle(
 			GetWorld(),
-			owner->GetActorLocation(),
+			grappleAttachmentPoint,
 			targets[i]->GetActorLocation(),
 			ETraceTypeQuery(),
 			false,
 			ignoreActors,
-			EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::None,
 			result,
 			true
 			);
