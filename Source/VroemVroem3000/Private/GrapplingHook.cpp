@@ -4,6 +4,7 @@
 #include "GrapplingHook.h"
 #include "CableComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "GrappleTarget.h"
 
 // Sets default values
 AGrapplingHook::AGrapplingHook()
@@ -18,16 +19,17 @@ AGrapplingHook::AGrapplingHook()
 	// Add projectile movement component
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
-	ProjectileMovementComponent->InitialSpeed = 3000.0f;
-	ProjectileMovementComponent->MaxSpeed = 3000.0f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
-	ProjectileMovementComponent->bShouldBounce = true;
-	ProjectileMovementComponent->Bounciness = 0.3f;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
 	// Create Cable
 	cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
 	cable->SetupAttachment(hook);
+}
 
+void AGrapplingHook::Init(FVector _target)
+{
+	endLocation = _target;
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +37,11 @@ void AGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	startLocation = GetActorLocation();
+	direction = endLocation - startLocation;
+	direction.Normalize();
+
+	ProjectileMovementComponent->Velocity = direction * GrappleShootSpeed;
 }
 
 // Called every frame

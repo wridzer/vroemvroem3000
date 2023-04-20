@@ -21,11 +21,18 @@ public:
 		class UProjectileMovementComponent* ProjectileMovementComponent;
 	UPROPERTY(EditAnywhere)
 		class UCableComponent* cable;
+	UPROPERTY(EditAnywhere)
+		float GrappleShootSpeed = 5000;
+
+	void Init(FVector _target);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	FVector startLocation;
+	FVector endLocation;
+	FVector direction;
 
 public:	
 	// Called every frame

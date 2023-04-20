@@ -8,6 +8,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Math/Vector.h"
 #include <GrapplingHook.h>
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values for this component's properties
 UGrappleComponent::UGrappleComponent()
@@ -30,20 +31,25 @@ void UGrappleComponent::BeginPlay()
 	// I wanted to create a empty default gameobject, but didnt know how in UE5 yet
 	USceneComponent* GrappleAttachment = Cast<USceneComponent>(GetDefaultSubobjectByName(TEXT("GrappleAttachment")));
 	if (IsValid(GrappleAttachment)) {
-		grappleAttachmentPoint = GrappleAttachment->GetComponentLocation();
+		grappleAttachmentPoint = GrappleAttachment->GetComponentLocation() - owner->GetActorLocation();
 	}
 	else {
-		grappleAttachmentPoint = owner->GetActorLocation() + FVector(250, 0, 50);
+		grappleAttachmentPoint = FVector(250, 0, 50);
 	}
 }
 
 void UGrappleComponent::AttemptGrapple()
 {
 	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
-		FVector spawnPos = grappleAttachmentPoint;
-		FActorSpawnParameters SpawnInfo;
+		FVector spawnPos = owner->GetActorLocation() + grappleAttachmentPoint;
 		FRotator myRot = camera->GetComponentRotation();
-		GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
+		FTransform SpawnTransform(myRot, spawnPos);
+		auto newHook = Cast<AGrapplingHook>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, grapplingHook, SpawnTransform, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
+		{
+			newHook->Init(currentTarget->GetActorLocation());
+			UGameplayStatics::FinishSpawningActor(newHook, SpawnTransform);
+		}
+		//AGrapplingHook* newHook = GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
 		//grappleState = GrappleStates::FIRING;
 	}
 }
