@@ -15,7 +15,7 @@ class VROEMVROEM3000_API UGrappleComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UGrappleComponent();
-
+	
 	void AttemptGrapple();
 
 	UPROPERTY(EditDefaultsOnly)

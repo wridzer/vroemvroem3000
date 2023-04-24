@@ -19,6 +19,8 @@ AGrapplingHook::AGrapplingHook()
 	// Add projectile movement component
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
+	ProjectileMovementComponent->InitialSpeed = GrappleShootSpeed;
+	ProjectileMovementComponent->MaxSpeed = GrappleShootSpeed;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 

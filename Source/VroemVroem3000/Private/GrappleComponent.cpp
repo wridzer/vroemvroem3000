@@ -34,14 +34,14 @@ void UGrappleComponent::BeginPlay()
 		grappleAttachmentPoint = GrappleAttachment->GetComponentLocation() - owner->GetActorLocation();
 	}
 	else {
-		grappleAttachmentPoint = FVector(250, 0, 50);
+		grappleAttachmentPoint = FVector(350, 0, 50);
 	}
 }
 
 void UGrappleComponent::AttemptGrapple()
 {
 	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
-		FVector spawnPos = owner->GetActorLocation() + grappleAttachmentPoint;
+		FVector spawnPos = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(grappleAttachmentPoint);
 		FRotator myRot = camera->GetComponentRotation();
 		FTransform SpawnTransform(myRot, spawnPos);
 		auto newHook = Cast<AGrapplingHook>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, grapplingHook, SpawnTransform, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
@@ -49,7 +49,6 @@ void UGrappleComponent::AttemptGrapple()
 			newHook->Init(currentTarget->GetActorLocation());
 			UGameplayStatics::FinishSpawningActor(newHook, SpawnTransform);
 		}
-		//AGrapplingHook* newHook = GetWorld()->SpawnActor<AGrapplingHook>(grapplingHook, spawnPos, myRot, SpawnInfo);
 		//grappleState = GrappleStates::FIRING;
 	}
 }
@@ -87,7 +86,7 @@ void UGrappleComponent::Retracted()
 		FHitResult result;
 		UKismetSystemLibrary::LineTraceSingle(
 			GetWorld(),
-			grappleAttachmentPoint,
+			owner->GetActorLocation() + owner->GetActorRotation().RotateVector(grappleAttachmentPoint),
 			targets[i]->GetActorLocation(),
 			ETraceTypeQuery(),
 			false,
