@@ -34,6 +34,7 @@ protected:
 
 	AActor* owner;
 	class UCameraComponent* camera;
+	class UStaticMeshComponent* mesh;
 	class AGrappleTarget* currentTarget;
 	FVector grappleAttachmentPoint;
 

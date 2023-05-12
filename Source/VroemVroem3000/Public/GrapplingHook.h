@@ -24,12 +24,14 @@ public:
 	UPROPERTY(EditAnywhere)
 		float GrappleShootSpeed = 5000;
 
-	void Init(FVector _target);
+	void Init(AActor* _target, AActor* _owner);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	AActor* target;
+	AActor* owner;
 	FVector startLocation;
 	FVector endLocation;
 	FVector direction;

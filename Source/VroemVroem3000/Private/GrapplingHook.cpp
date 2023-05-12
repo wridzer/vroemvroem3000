@@ -27,11 +27,14 @@ AGrapplingHook::AGrapplingHook()
 	// Create Cable
 	cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
 	cable->SetupAttachment(hook);
+	cable->AttachToComponent(hook, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
-void AGrapplingHook::Init(FVector _target)
+void AGrapplingHook::Init(AActor* _target, AActor* _owner)
 {
-	endLocation = _target;
+	target = _target;
+	owner = _owner;
+	endLocation = _target->GetActorLocation();
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +45,7 @@ void AGrapplingHook::BeginPlay()
 	startLocation = GetActorLocation();
 	direction = endLocation - startLocation;
 	direction.Normalize();
+	cable->SetAttachEndTo(owner, TEXT("Mesh"), TEXT("GrapplePoint"));
 
 	ProjectileMovementComponent->Velocity = direction * GrappleShootSpeed;
 }
@@ -50,6 +54,6 @@ void AGrapplingHook::BeginPlay()
 void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
 }
 

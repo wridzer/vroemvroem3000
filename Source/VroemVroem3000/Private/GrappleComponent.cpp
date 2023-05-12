@@ -27,11 +27,12 @@ void UGrappleComponent::BeginPlay()
 	grappleState = GrappleStates::RETRACTED;
 	owner = GetOwner();
 	camera = owner->FindComponentByClass<UCameraComponent>();
+	mesh = owner->FindComponentByClass<UStaticMeshComponent>();
 
 	// I wanted to create a empty default gameobject, but didnt know how in UE5 yet
 	USceneComponent* GrappleAttachment = Cast<USceneComponent>(GetDefaultSubobjectByName(TEXT("GrappleAttachment")));
-	if (IsValid(GrappleAttachment)) {
-		grappleAttachmentPoint = GrappleAttachment->GetComponentLocation() - owner->GetActorLocation();
+	if (mesh->GetSocketByName("GrapplePoint")) {
+		grappleAttachmentPoint = mesh->GetSocketLocation("GrapplePoint");
 	}
 	else {
 		grappleAttachmentPoint = FVector(350, 0, 50);
@@ -46,7 +47,7 @@ void UGrappleComponent::AttemptGrapple()
 		FTransform SpawnTransform(myRot, spawnPos);
 		auto newHook = Cast<AGrapplingHook>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, grapplingHook, SpawnTransform, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
 		{
-			newHook->Init(currentTarget->GetActorLocation());
+			newHook->Init(currentTarget, owner);
 			UGameplayStatics::FinishSpawningActor(newHook, SpawnTransform);
 		}
 		//grappleState = GrappleStates::FIRING;
