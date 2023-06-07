@@ -15,10 +15,11 @@ AGrapplingHook::AGrapplingHook()
 	// Create projectile
 	hook = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hook"));
 	hook->SetupAttachment(RootComponent);
+	RootComponent = hook;
 	
 	// Add projectile movement component
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
+	ProjectileMovementComponent->SetUpdatedComponent(hook);
 	ProjectileMovementComponent->InitialSpeed = GrappleShootSpeed;
 	ProjectileMovementComponent->MaxSpeed = GrappleShootSpeed;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
@@ -42,18 +43,23 @@ void AGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	startLocation = GetActorLocation();
-	direction = endLocation - startLocation;
-	direction.Normalize();
-	cable->SetAttachEndTo(owner, TEXT("Mesh"), TEXT("GrapplePoint"));
-
-	ProjectileMovementComponent->Velocity = direction * GrappleShootSpeed;
+	if (!owner) {
+		UE_LOG(LogTemp, Warning, TEXT("no owner!"));
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("This a testing statement. %s"), *owner->GetName());
+		startLocation = GetActorLocation();
+		direction = endLocation - startLocation;
+		direction.Normalize();
+		cable->SetAttachEndTo(owner, TEXT("Mesh"), TEXT("GrapplePoint"));
+		ProjectileMovementComponent->Velocity = direction * GrappleShootSpeed;
+	}
 }
 
 // Called every frame
 void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
+	// cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
 }
 
