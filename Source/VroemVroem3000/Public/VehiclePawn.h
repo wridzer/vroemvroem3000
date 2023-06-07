@@ -24,8 +24,9 @@ public:
 	// Shoot grappiling hook
 	void Shoot();
 
-	// Throttle/steering
+	// Throttle/steering/brake
 	void ApplyThrottle(float Val);
+	void ApplyBrake(float Val);
 	void ApplySteering(float Val);
 
 	// Look around
