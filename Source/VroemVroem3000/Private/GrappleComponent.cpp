@@ -42,15 +42,21 @@ void UGrappleComponent::BeginPlay()
 void UGrappleComponent::AttemptGrapple()
 {
 	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
-		FVector spawnPos = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(grappleAttachmentPoint);
+		startPos = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(grappleAttachmentPoint);
 		FRotator myRot = camera->GetComponentRotation();
-		FTransform SpawnTransform(myRot, spawnPos);
-		auto newHook = Cast<AGrapplingHook>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, grapplingHook, SpawnTransform, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
+		FTransform SpawnTransform(myRot, startPos);
+		currentHook = Cast<AGrapplingHook>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, grapplingHook, SpawnTransform, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
 		{
-			newHook->Init(currentTarget, owner);
-			UGameplayStatics::FinishSpawningActor(newHook, SpawnTransform);
+			currentHook->Init(currentTarget, owner);
+			UGameplayStatics::FinishSpawningActor(currentHook, SpawnTransform);
 		}
-		//grappleState = GrappleStates::FIRING;
+		grappleState = GrappleStates::FIRING;
+	}
+	if (grappleState == GrappleStates::ON_TARGET) {
+		currentHook->Destroy();
+		currentHook = nullptr;
+		currentTarget = nullptr;
+		grappleState = GrappleStates::RETRACTED;
 	}
 }
 
@@ -122,10 +128,14 @@ void UGrappleComponent::Retracted()
 
 void UGrappleComponent::Firing()
 {
-}
+	float hookDist = FVector::DistSquared(currentHook->GetActorLocation(), startPos);
+	float ownerDist = FVector::DistSquared(owner->GetActorLocation(), startPos);
 
-void UGrappleComponent::NearingTarget()
-{
+	if (hookDist >= ownerDist) {
+		currentHook->SetActorLocation(currentTarget->GetActorLocation());
+		currentHook->StopVelocity();
+		grappleState = GrappleStates::ON_TARGET;
+	}
 }
 
 void UGrappleComponent::OnTarget()
@@ -140,12 +150,13 @@ void UGrappleComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	switch (grappleState) {
 	case GrappleStates::RETRACTED:
 		Retracted();
+		break;
 	case GrappleStates::FIRING:
 		Firing();
-	case GrappleStates::NEARING_TARGET:
-		NearingTarget();
+		break;
 	case GrappleStates::ON_TARGET:
 		OnTarget();
+		break;
 	}
 }
 

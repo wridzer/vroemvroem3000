@@ -25,6 +25,7 @@ public:
 		float GrappleShootSpeed = 5000;
 
 	void Init(AActor* _target, AActor* _owner);
+	void StopVelocity();
 
 protected:
 	// Called when the game starts or when spawned

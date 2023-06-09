@@ -29,14 +29,15 @@ protected:
 
 	void Retracted();
 	void Firing();
-	void NearingTarget();
 	void OnTarget();
 
 	AActor* owner;
 	class UCameraComponent* camera;
 	class UStaticMeshComponent* mesh;
 	class AGrappleTarget* currentTarget;
+	class AGrapplingHook* currentHook;
 	FVector grappleAttachmentPoint;
+	FVector startPos;
 
 	UPROPERTY(EditDefaultsOnly)
 		float maxGrappleDist = 5000;
@@ -52,6 +53,5 @@ UENUM(BlueprintType)
 enum class GrappleStates : uint8 {
 	RETRACTED = 0,
 	FIRING = 1,
-	NEARING_TARGET = 2,
-	ON_TARGET = 3
+	ON_TARGET = 2
 };

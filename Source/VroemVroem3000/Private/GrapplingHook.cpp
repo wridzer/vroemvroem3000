@@ -38,6 +38,11 @@ void AGrapplingHook::Init(AActor* _target, AActor* _owner)
 	endLocation = _target->GetActorLocation();
 }
 
+void AGrapplingHook::StopVelocity()
+{
+	ProjectileMovementComponent->Velocity = FVector();
+}
+
 // Called when the game starts or when spawned
 void AGrapplingHook::BeginPlay()
 {
@@ -47,11 +52,11 @@ void AGrapplingHook::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("no owner!"));
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("This a testing statement. %s"), *owner->GetName());
 		startLocation = GetActorLocation();
 		direction = endLocation - startLocation;
 		direction.Normalize();
 		cable->SetAttachEndTo(owner, TEXT("Mesh"), TEXT("GrapplePoint"));
+		cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
 		ProjectileMovementComponent->Velocity = direction * GrappleShootSpeed;
 	}
 }
