@@ -30,6 +30,20 @@ AGrapplingHook::AGrapplingHook()
 	physicsConstraint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsConstraint"));
 	physicsConstraint->SetupAttachment(hook);
 
+	physicsConstraint->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Locked, 0);
+	physicsConstraint->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Locked, 0);
+	physicsConstraint->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 0);
+
+	physicsConstraint->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Limited, 45.0f);
+	physicsConstraint->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 0);
+	physicsConstraint->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 0);
+
+	physicsConstraint->ConstraintInstance.ProfileInstance.ConeLimit.Stiffness = 50.0f;
+	physicsConstraint->ConstraintInstance.ProfileInstance.ConeLimit.Damping = 10.0f;
+	physicsConstraint->ConstraintInstance.ProfileInstance.TwistLimit.Stiffness = 50.0f;
+	physicsConstraint->ConstraintInstance.ProfileInstance.TwistLimit.Damping = 10.0f;
+
+
 	// Create Cable
 	cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
 	cable->SetupAttachment(hook);
@@ -42,16 +56,26 @@ void AGrapplingHook::Init(AActor* _target, AActor* _owner)
 	owner = _owner;
 	endLocation = _target->GetActorLocation();
 
-	USkeletalMeshComponent* SkeletalMeshComponent = owner->FindComponentByClass<USkeletalMeshComponent>();
+	/*USkeletalMeshComponent* SkeletalMeshComponent = owner->FindComponentByClass<USkeletalMeshComponent>();
 	if (SkeletalMeshComponent)
 	{
-		//physicsConstraint->SetConstrainedComponents(hook, NAME_None, SkeletalMeshComponent, NAME_None);
-	}
+		physicsConstraint->AttachToComponent(SkeletalMeshComponent, FAttachmentTransformRules::KeepWorldTransform, TEXT("GrapplePoint"));
+
+	}*/
 }
 
 void AGrapplingHook::StopVelocity()
 {
 	ProjectileMovementComponent->Velocity = FVector();
+	// Attach physics
+	USkeletalMeshComponent* MeshComponent = owner->FindComponentByClass<USkeletalMeshComponent>();
+	if (MeshComponent) {
+		physicsConstraint->AttachToComponent(MeshComponent, FAttachmentTransformRules::KeepWorldTransform);
+		FVector SocketLocation = MeshComponent->GetSocketLocation(TEXT("GrapplePoint"));
+		FVector HalfwayLocation = FMath::Lerp(SocketLocation, target->GetActorLocation(), 0.5f);
+		physicsConstraint->SetRelativeLocation(HalfwayLocation);
+		physicsConstraint->SetConstrainedComponents(hook, NAME_None, MeshComponent, NAME_None);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -60,14 +84,14 @@ void AGrapplingHook::BeginPlay()
 	Super::BeginPlay();
 	
 	if (!owner) {
-		UE_LOG(LogTemp, Warning, TEXT("no owner!"));
 	}
 	else {
 		startLocation = GetActorLocation();
 		direction = endLocation - startLocation;
 		direction.Normalize();
 		cable->SetAttachEndTo(owner, TEXT("Mesh"), TEXT("GrapplePoint"));
-		//cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
+		UE_LOG(LogTemp, Warning, TEXT("HERE"));
+
 		ProjectileMovementComponent->Velocity = direction * GrappleShootSpeed;
 	}
 }
