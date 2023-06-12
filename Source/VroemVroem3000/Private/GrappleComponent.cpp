@@ -42,7 +42,7 @@ void UGrappleComponent::BeginPlay()
 void UGrappleComponent::AttemptGrapple()
 {
 	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
-		startPos = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(grappleAttachmentPoint);
+		FVector startPos = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(grappleAttachmentPoint);
 		FRotator myRot = camera->GetComponentRotation();
 		FTransform SpawnTransform(myRot, startPos);
 		currentHook = Cast<AGrapplingHook>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, grapplingHook, SpawnTransform, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
@@ -117,19 +117,19 @@ void UGrappleComponent::Retracted()
 	// Set visibility
 	AGrappleTarget* selectedTarget = Cast<AGrappleTarget>(bestTarget);
 	if (selectedTarget != currentTarget || !IsValid(currentTarget)) {
-		if (IsValid(currentTarget)) { currentTarget->SetActive(false); }
+		if (IsValid(currentTarget))
+			currentTarget->SetActive(false);
 		currentTarget = selectedTarget;
 		if (IsValid(currentTarget))
 			currentTarget->SetActive(true);
 	}
 
-
 }
 
 void UGrappleComponent::Firing()
 {
-	float hookDist = FVector::DistSquared(currentHook->GetActorLocation(), startPos);
-	float ownerDist = FVector::DistSquared(owner->GetActorLocation(), startPos);
+	float hookDist = FVector::DistSquared(currentHook->GetActorLocation(), currentTarget->GetActorLocation());
+	float ownerDist = FVector::DistSquared(owner->GetActorLocation(), currentTarget->GetActorLocation());
 
 	if (hookDist >= ownerDist) {
 		currentHook->SetActorLocation(currentTarget->GetActorLocation());

@@ -4,6 +4,7 @@
 #include "GrapplingHook.h"
 #include "CableComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "GrappleTarget.h"
 
 // Sets default values
@@ -25,6 +26,10 @@ AGrapplingHook::AGrapplingHook()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
+	// Add physics constraint
+	physicsConstraint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsConstraint"));
+	physicsConstraint->SetupAttachment(hook);
+
 	// Create Cable
 	cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
 	cable->SetupAttachment(hook);
@@ -36,6 +41,12 @@ void AGrapplingHook::Init(AActor* _target, AActor* _owner)
 	target = _target;
 	owner = _owner;
 	endLocation = _target->GetActorLocation();
+
+	USkeletalMeshComponent* SkeletalMeshComponent = owner->FindComponentByClass<USkeletalMeshComponent>();
+	if (SkeletalMeshComponent)
+	{
+		//physicsConstraint->SetConstrainedComponents(hook, NAME_None, SkeletalMeshComponent, NAME_None);
+	}
 }
 
 void AGrapplingHook::StopVelocity()
@@ -56,7 +67,7 @@ void AGrapplingHook::BeginPlay()
 		direction = endLocation - startLocation;
 		direction.Normalize();
 		cable->SetAttachEndTo(owner, TEXT("Mesh"), TEXT("GrapplePoint"));
-		cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
+		//cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
 		ProjectileMovementComponent->Velocity = direction * GrappleShootSpeed;
 	}
 }

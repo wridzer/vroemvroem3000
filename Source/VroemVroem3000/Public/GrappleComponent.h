@@ -37,7 +37,6 @@ protected:
 	class AGrappleTarget* currentTarget;
 	class AGrapplingHook* currentHook;
 	FVector grappleAttachmentPoint;
-	FVector startPos;
 
 	UPROPERTY(EditDefaultsOnly)
 		float maxGrappleDist = 5000;

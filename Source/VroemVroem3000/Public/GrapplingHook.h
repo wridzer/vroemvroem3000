@@ -22,6 +22,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UCableComponent* cable;
 	UPROPERTY(EditAnywhere)
+		class UPhysicsConstraintComponent* physicsConstraint;
+	UPROPERTY(EditAnywhere)
 		float GrappleShootSpeed = 5000;
 
 	void Init(AActor* _target, AActor* _owner);
