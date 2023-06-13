@@ -50,6 +50,7 @@ void UGrappleComponent::AttemptGrapple()
 			currentHook->Init(currentTarget, owner);
 			UGameplayStatics::FinishSpawningActor(currentHook, SpawnTransform);
 		}
+		currentTarget->SetActive(false);
 		grappleState = GrappleStates::FIRING;
 	}
 	if (grappleState == GrappleStates::ON_TARGET) {

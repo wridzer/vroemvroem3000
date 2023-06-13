@@ -26,28 +26,33 @@ AGrapplingHook::AGrapplingHook()
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
 
-	// Add physics constraint
-	physicsConstraint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsConstraint"));
-	physicsConstraint->SetupAttachment(hook);
-
-	physicsConstraint->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Locked, 0);
-	physicsConstraint->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Locked, 0);
-	physicsConstraint->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 0);
-
-	physicsConstraint->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Limited, 45.0f);
-	physicsConstraint->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 0);
-	physicsConstraint->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 0);
-
-	physicsConstraint->ConstraintInstance.ProfileInstance.ConeLimit.Stiffness = 50.0f;
-	physicsConstraint->ConstraintInstance.ProfileInstance.ConeLimit.Damping = 10.0f;
-	physicsConstraint->ConstraintInstance.ProfileInstance.TwistLimit.Stiffness = 50.0f;
-	physicsConstraint->ConstraintInstance.ProfileInstance.TwistLimit.Damping = 10.0f;
-
-
 	// Create Cable
 	cable = CreateDefaultSubobject<UCableComponent>(TEXT("Cable"));
 	cable->SetupAttachment(hook);
 	cable->AttachToComponent(hook, FAttachmentTransformRules::KeepRelativeTransform);
+
+	// Add physics constraint
+	physicsConstraint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsConstraint"));
+	physicsConstraint->SetupAttachment(hook);
+	physicsConstraint->SetActive(false);
+
+	//physicsConstraint->ConstraintInstance.SetLinearXLimit(ELinearConstraintMotion::LCM_Limited, 500.0f);
+	//physicsConstraint->ConstraintInstance.SetLinearYLimit(ELinearConstraintMotion::LCM_Locked, 0);
+	//physicsConstraint->ConstraintInstance.SetLinearZLimit(ELinearConstraintMotion::LCM_Locked, 0);
+
+	//physicsConstraint->ConstraintInstance.SetAngularSwing1Limit(EAngularConstraintMotion::ACM_Locked, 0);
+	//physicsConstraint->ConstraintInstance.SetAngularSwing2Limit(EAngularConstraintMotion::ACM_Locked, 0);
+	//physicsConstraint->ConstraintInstance.SetAngularTwistLimit(EAngularConstraintMotion::ACM_Locked, 0);
+
+	//physicsConstraint->ConstraintInstance.ProfileInstance.LinearLimit.Stiffness = 1500.0f; 
+	//physicsConstraint->ConstraintInstance.ProfileInstance.LinearLimit.Damping = 10.0f; 
+
+	//physicsConstraint->ConstraintInstance.ProfileInstance.ProjectionLinearTolerance = 0.01f;
+	//physicsConstraint->ConstraintInstance.ProfileInstance.ProjectionAngularTolerance = 0.01f;
+
+	//physicsConstraint->ConstraintInstance.ProfileInstance.bLinearBreakable = false;
+	//physicsConstraint->ConstraintInstance.ProfileInstance.bAngularBreakable = false;
+
 }
 
 void AGrapplingHook::Init(AActor* _target, AActor* _owner)
@@ -72,9 +77,15 @@ void AGrapplingHook::StopVelocity()
 	if (MeshComponent) {
 		physicsConstraint->AttachToComponent(MeshComponent, FAttachmentTransformRules::KeepWorldTransform);
 		FVector SocketLocation = MeshComponent->GetSocketLocation(TEXT("GrapplePoint"));
-		FVector HalfwayLocation = FMath::Lerp(SocketLocation, target->GetActorLocation(), 0.5f);
-		physicsConstraint->SetRelativeLocation(HalfwayLocation);
+		physicsConstraint->ConstraintActor1 = hook->GetOwner();
+		physicsConstraint->ConstraintActor2 = owner;
+		physicsConstraint->SetRelativeLocation(SocketLocation);
 		physicsConstraint->SetConstrainedComponents(hook, NAME_None, MeshComponent, NAME_None);
+
+		cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
+		physicsConstraint->ConstraintInstance.ProfileInstance.LinearLimit.Limit = cable->CableLength;
+
+		physicsConstraint->SetActive(true);
 	}
 }
 
@@ -100,6 +111,5 @@ void AGrapplingHook::BeginPlay()
 void AGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// cable->CableLength = FVector::Distance(endLocation, hook->GetComponentLocation());
 }
 
