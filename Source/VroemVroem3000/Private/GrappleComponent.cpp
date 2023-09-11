@@ -44,7 +44,7 @@ void UGrappleComponent::AttemptGrapple()
 	if (grappleState == GrappleStates::RETRACTED && IsValid(currentTarget)) {
 		FVector startPos = owner->GetActorLocation() + owner->GetActorRotation().RotateVector(grappleAttachmentPoint);
 		FRotator myRot = camera->GetComponentRotation();
-		FTransform SpawnTransform(myRot, startPos);
+		FTransform SpawnTransform(myRot, grappleAttachmentPoint);
 		currentHook = Cast<AGrapplingHook>(UGameplayStatics::BeginDeferredActorSpawnFromClass(this, grapplingHook, SpawnTransform, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
 		{
 			currentHook->Init(currentTarget, owner);

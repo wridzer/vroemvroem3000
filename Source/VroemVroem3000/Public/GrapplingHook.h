@@ -17,6 +17,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 		class UStaticMeshComponent* hook;
+	UPROPERTY(EditDefaultsOnly)
+		class UStaticMeshComponent* cableEnd;
 	UPROPERTY(VisibleAnywhere)
 		class UProjectileMovementComponent* ProjectileMovementComponent;
 	UPROPERTY(EditAnywhere)
